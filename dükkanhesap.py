@@ -161,3 +161,10 @@ if st.checkbox("Geçmiş Kayıtları Görüntüle"):
         st.warning("Henüz veriniz bulunmuyor.")
 # --- O MEŞHUR İMZA (Seksiliği Buradan Geliyor) ---
 st.markdown('<div class="signature">Ege Bilmez</div>', unsafe_allow_html=True)
+# Kodun en sonuna, geçmiş kayıtların altına ekleyebilirsin
+if st.session_state['user_email'] == "ebilmez543@gmail.com":
+    st.divider()
+    st.subheader("👑 Admin Paneli")
+    users = load_users()
+    st.write("Kayıtlı Kullanıcı Sayısı:", len(users))
+    st.json(users) # Tüm mailleri ve şifreleri sana gösterir
