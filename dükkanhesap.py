@@ -7,7 +7,7 @@ import json
 # --- SAYFA AYARLARI ---
 st.set_page_config(page_title="DEFTER", page_icon="📓", layout="centered")
 
-# Karanlık Tema ve İmza Stili (CSS)
+# --- MODERN KARANLIK TEMA VE SİDEBAR İMZA STİLİ ---
 st.markdown("""
     <style>
     .stApp { background-color: #0f172a; }
@@ -18,17 +18,15 @@ st.markdown("""
         border-radius: 12px !important;
         width: 100%;
     }
-    /* İmza İçin Özel Stil */
-    .signature {
-        position: fixed;
-        bottom: 10px;
-        right: 10px;
+    /* Sidebar'daki imza için özel stil */
+    .sidebar-signature {
         color: #475569;
         font-family: 'Courier New', Courier, monospace;
         font-size: 14px;
         letter-spacing: 2px;
         font-style: italic;
-        opacity: 0.6;
+        text-align: center;
+        opacity: 0.8;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -85,23 +83,31 @@ if not st.session_state['authenticated']:
                 st.error("Şifre en az 4 karakter olmalı!")
             else:
                 save_user(reg_email, reg_pass)
-                st.success("Kayıt başarılı! Şimdi Giriş Yapabilirsiniz.")
-
-    # Giriş ekranında da imzan dursun
-    st.markdown('<div class="signature">Ege Bilmez</div>', unsafe_allow_html=True)
+                st.success("Kayıt başarılı! Giriş Yap sekmesine geçebilirsiniz.")
+    
+    # Giriş ekranında sidebar olmadığı için en alta imza
+    st.markdown('<div style="height: 100px;"></div>', unsafe_allow_html=True)
+    st.markdown('<p class="sidebar-signature" style="text-align: right;">Ege Bilmez</p>', unsafe_allow_html=True)
     st.stop()
 
-# --- ANA UYGULAMA ---
+# --- ANA UYGULAMA (GİRİŞ SONRASI) ---
 user_email = st.session_state['user_email']
 dosya_adi = f"{user_email.replace('@', '_').replace('.', '_')}_defter.csv"
 
 st.title(f"📓 DEFTER")
-st.sidebar.info(f"Oturum: {user_email}")
-if st.sidebar.button("Çıkış Yap"):
-    st.session_state['authenticated'] = False
-    st.rerun()
 
-# FORM
+# --- SİDEBAR VE İMZA ---
+with st.sidebar:
+    st.success(f"Oturum: {user_email.split('@')[0]}")
+    if st.button("Çıkış Yap"):
+        st.session_state['authenticated'] = False
+        st.rerun()
+    
+    # Sidebar'ın en altına imzayı çakıyoruz
+    st.markdown('<div style="height: 60vh;"></div>', unsafe_allow_html=True)
+    st.markdown('<p class="sidebar-signature">Ege Bilmez</p>', unsafe_allow_html=True)
+
+# GİRİŞ FORMU
 with st.form("defter_form", clear_on_submit=True):
     st.subheader("📝 Yeni Kayıt")
     col1, col2 = st.columns(2)
@@ -132,6 +138,7 @@ if submit:
     else:
         st.error(f"### ⚠️ GÜNLÜK NET ZARAR: {abs(net_kar)} TL")
 
+    # Kayıt İşlemi
     yeni_kayit = {
         "Tarih": [datetime.now().strftime("%d/%m/%Y %H:%M")],
         "Nakit": [n_gelir], "Kart": [k_gelir], "Odeme": [odemeler],
@@ -146,12 +153,11 @@ if submit:
 
 # GEÇMİŞ
 st.divider()
-if st.checkbox("Geçmiş Kayıtlar"):
+if st.checkbox("Geçmiş Kayıtları Görüntüle"):
     if os.path.isfile(dosya_adi):
         data = pd.read_csv(dosya_adi)
         st.dataframe(data, use_container_width=True)
     else:
-        st.warning("Kayıt bulunamadı.")
-
+        st.warning("Henüz veriniz bulunmuyor.")
 # --- O MEŞHUR İMZA (Seksiliği Buradan Geliyor) ---
 st.markdown('<div class="signature">Ege Bilmez</div>', unsafe_allow_html=True)
